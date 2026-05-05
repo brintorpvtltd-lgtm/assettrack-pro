@@ -1,0 +1,6 @@
+{
+  "name": "AssetTrack Pro",
+  "description": "Comprehensive enterprise asset management system with QR tracking, depreciation calculation, and multi-location inventory control.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": []
+}

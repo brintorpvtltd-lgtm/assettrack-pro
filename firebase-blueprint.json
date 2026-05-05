@@ -1,0 +1,139 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile and role in the system.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "format": "email" },
+        "role": { "type": "string", "enum": ["admin", "manager", "staff"] },
+        "locationId": { "type": "string", "description": "Assigned location for managers/staff" },
+        "displayName": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["email", "role", "createdAt"]
+    },
+    "Location": {
+      "title": "Location",
+      "description": "A physical location where assets are stored.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "type": { "type": "string", "enum": ["warehouse", "office", "store", "other"] },
+        "managerId": { "type": "string" },
+        "managerName": { "type": "string" },
+        "assetCount": { "type": "number" },
+        "totalValue": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "type", "createdAt"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Definition of an asset type.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "category": { "type": "string" },
+        "cost": { "type": "number" },
+        "currentStock": { "type": "number" },
+        "depreciationMethod": { "type": "string", "enum": ["percentage", "fixed"] },
+        "depreciationValue": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "category", "cost", "createdAt"]
+    },
+    "Batch": {
+      "title": "Batch",
+      "description": "A group of assets created together.",
+      "type": "object",
+      "properties": {
+        "productId": { "type": "string" },
+        "locationId": { "type": "string" },
+        "quantity": { "type": "number" },
+        "costPerItem": { "type": "number" },
+        "depreciationMethod": { "type": "string" },
+        "depreciationValue": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["productId", "locationId", "quantity", "createdAt"]
+    },
+    "Asset": {
+      "title": "Asset",
+      "description": "An individual trackable item.",
+      "type": "object",
+      "properties": {
+        "qrCode": { "type": "string" },
+        "productId": { "type": "string" },
+        "productName": { "type": "string" },
+        "locationId": { "type": "string" },
+        "locationName": { "type": "string" },
+        "batchId": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "damaged", "disposed", "sold"] },
+        "purchaseCost": { "type": "number" },
+        "currentValue": { "type": "number" },
+        "lastDepreciationAt": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["qrCode", "productId", "locationId", "status", "purchaseCost", "currentValue", "createdAt"]
+    },
+    "Transfer": {
+      "title": "Transfer",
+      "description": "Record of asset movement between locations.",
+      "type": "object",
+      "properties": {
+        "assetIds": { "type": "array", "items": { "type": "string" } },
+        "fromLocationId": { "type": "string" },
+        "toLocationId": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "completed"] },
+        "initiatedById": { "type": "string" },
+        "initiatedByName": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["assetIds", "fromLocationId", "toLocationId", "status", "createdAt"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Financial record for sales or disposal.",
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["sale", "scrap"] },
+        "assetId": { "type": "string" },
+        "amount": { "type": "number" },
+        "profitLoss": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["type", "assetId", "amount", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Application users and their roles."
+    },
+    "/locations/{locationId}": {
+      "schema": "Location",
+      "description": "Physical asset locations."
+    },
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Definitions of asset types."
+    },
+    "/batches/{batchId}": {
+      "schema": "Batch",
+      "description": "Batches of assets created together."
+    },
+    "/assets/{assetId}": {
+      "schema": "Asset",
+      "description": "Individual assets tracked by the system."
+    },
+    "/transfers/{transferId}": {
+      "schema": "Transfer",
+      "description": "Asset transfer history."
+    },
+    "/transactions/{transactionId}": {
+      "schema": "Transaction",
+      "description": "Sale and disposal financial records."
+    }
+  }
+}

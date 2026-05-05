@@ -1,0 +1,153 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // -------------------------------------------------------------------------
+    // HELPERS
+    // -------------------------------------------------------------------------
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isEmailVerified() {
+      return request.auth.token.email_verified == true;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && getUserData().role == 'admin';
+    }
+
+    function isManager() {
+      return isSignedIn() && getUserData().role == 'manager';
+    }
+
+    function isStaff() {
+      return isSignedIn() && getUserData().role == 'staff';
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // -------------------------------------------------------------------------
+    // USERS
+    // -------------------------------------------------------------------------
+    function isValidUser(data) {
+      return data.email is string && data.email.size() > 0 &&
+             data.role in ['admin', 'manager', 'staff'] &&
+             data.displayName is string;
+    }
+
+    match /users/{userId} {
+      allow get: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow list: if isAdmin();
+      allow create: if isSignedIn() && request.auth.uid == userId && 
+        isValidUser(incoming()) && (
+          (request.auth.token.email == 'adcs.noman@gmail.com' && incoming().role == 'admin') ||
+          (request.auth.token.email == 'manager@test.com' && incoming().role == 'manager') ||
+          (incoming().role == 'staff')
+        ) &&
+        incoming().createdAt == request.time;
+      allow update: if isSignedIn() && request.auth.uid == userId &&
+        isValidUser(incoming()) &&
+        incoming().role == existing().role && // Prevent self-escalation
+        incoming().createdAt == existing().createdAt;
+      allow update: if isAdmin();
+    }
+
+    // -------------------------------------------------------------------------
+    // LOCATIONS
+    // -------------------------------------------------------------------------
+    function isValidLocation(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.type in ['warehouse', 'office', 'store', 'other'];
+    }
+
+    match /locations/{locationId} {
+      allow read: if isSignedIn();
+      allow create: if isAdmin() && isValidLocation(incoming()) && 
+        incoming().createdAt == request.time;
+      allow update: if isAdmin() && isValidLocation(incoming());
+      allow delete: if isAdmin();
+    }
+
+    // -------------------------------------------------------------------------
+    // PRODUCTS
+    // -------------------------------------------------------------------------
+    function isValidProduct(data) {
+      return data.name is string && data.name.size() > 0 &&
+             data.category is string &&
+             data.cost is number && data.cost >= 0;
+    }
+
+    match /products/{productId} {
+      allow read: if isSignedIn();
+      allow create: if (isAdmin() || isManager()) && isValidProduct(incoming()) &&
+        incoming().createdAt == request.time;
+      allow update: if (isAdmin() || isManager()) && isValidProduct(incoming());
+      allow delete: if isAdmin();
+    }
+
+    // -------------------------------------------------------------------------
+    // BATCHES
+    // -------------------------------------------------------------------------
+    match /batches/{batchId} {
+      allow read: if isSignedIn();
+      allow create: if (isAdmin() || isManager()) && incoming().createdAt == request.time;
+      allow delete: if isAdmin();
+    }
+
+    // -------------------------------------------------------------------------
+    // ASSETS
+    // -------------------------------------------------------------------------
+    function isValidAsset(data) {
+      return data.qrCode is string &&
+             data.productId is string &&
+             data.locationId is string &&
+             data.status in ['active', 'damaged', 'disposed', 'sold', 'transferred'] &&
+             data.purchaseCost is number && data.purchaseCost >= 0 &&
+             data.currentValue is number && data.currentValue >= 0;
+    }
+
+    match /assets/{assetId} {
+      allow read: if isSignedIn();
+      allow create: if (isAdmin() || isManager()) && isValidAsset(incoming()) && 
+        incoming().createdAt == request.time;
+      allow update: if isSignedIn() && isValidAsset(incoming());
+      allow delete: if isAdmin();
+    }
+
+    // -------------------------------------------------------------------------
+    // TRANSFERS
+    // -------------------------------------------------------------------------
+    match /transfers/{transferId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && (isAdmin() || isManager());
+      allow update: if isSignedIn() && (isAdmin() || isManager());
+    }
+
+    // -------------------------------------------------------------------------
+    // TRANSACTIONS
+    // -------------------------------------------------------------------------
+    match /transactions/{transactionId} {
+      allow read: if isSignedIn() && isAdmin();
+      allow create: if isAdmin() || isManager();
+    }
+  }
+}
