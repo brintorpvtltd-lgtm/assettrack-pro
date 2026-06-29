@@ -12,7 +12,7 @@ import QRScanner from './pages/QRScanner';
 import Transfers from './pages/Transfers';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
-
+import RegisterUser from './pages/RegisterUser';
 import Depreciation from './pages/Depreciation';
 
 export default function App() {
@@ -26,25 +26,35 @@ export default function App() {
     );
   }
 
-  if (!user) {
-    return <Login />;
-  }
-
   return (
-    <Shell>
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/locations" element={<Locations />} />
-        <Route path="/products" element={<Products />} />
-        <Route path="/batches" element={<Batches />} />
-        <Route path="/assets" element={<Assets />} />
-        <Route path="/depreciation" element={<Depreciation />} />
-        <Route path="/scanner" element={<QRScanner />} />
-        <Route path="/transfers" element={<Transfers />} />
-        <Route path="/reports" element={<Reports />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Shell>
+    <Routes>
+      {/* Public routes - accessible without login */}
+      <Route path="/register-user" element={user ? <Navigate to="/" replace /> : <RegisterUser />} />
+      <Route path="/login" element={user ? <Navigate to="/" replace /> : <Login />} />
+
+      {/* Protected routes */}
+      {!user ? (
+        <Route path="*" element={<Login />} />
+      ) : (
+        <Route path="/*" element={
+          <Shell>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/locations" element={<Locations />} />
+              <Route path="/products" element={<Products />} />
+              <Route path="/batches" element={<Batches />} />
+              <Route path="/assets" element={<Assets />} />
+              <Route path="/depreciation" element={<Depreciation />} />
+              <Route path="/scanner" element={<QRScanner />} />
+              <Route path="/transfers" element={<Transfers />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/register-user" element={<RegisterUser />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Shell>
+        } />
+      )}
+    </Routes>
   );
 }

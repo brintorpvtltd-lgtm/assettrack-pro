@@ -6,9 +6,7 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
-    // -------------------------------------------------------------------------
-    // HELPERS
-    // -------------------------------------------------------------------------
+
     function isSignedIn() {
       return request.auth != null;
     }
@@ -45,9 +43,7 @@ service cloud.firestore {
       return resource.data;
     }
 
-    // -------------------------------------------------------------------------
-    // USERS
-    // -------------------------------------------------------------------------
+
     function isValidUser(data) {
       return data.email is string && data.email.size() > 0 &&
              data.role in ['admin', 'manager', 'staff'] &&
@@ -71,9 +67,7 @@ service cloud.firestore {
       allow update: if isAdmin();
     }
 
-    // -------------------------------------------------------------------------
-    // LOCATIONS
-    // -------------------------------------------------------------------------
+ 
     function isValidLocation(data) {
       return data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
              data.type in ['warehouse', 'office', 'store', 'other'];
@@ -87,9 +81,7 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // -------------------------------------------------------------------------
-    // PRODUCTS
-    // -------------------------------------------------------------------------
+   
     function isValidProduct(data) {
       return data.name is string && data.name.size() > 0 &&
              data.category is string &&
@@ -104,9 +96,7 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // -------------------------------------------------------------------------
-    // BATCHES
-    // -------------------------------------------------------------------------
+
     match /batches/{batchId} {
       allow read: if isSignedIn();
       allow create: if (isAdmin() || isManager()) && incoming().createdAt == request.time;
@@ -133,18 +123,14 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // -------------------------------------------------------------------------
-    // TRANSFERS
-    // -------------------------------------------------------------------------
+  
     match /transfers/{transferId} {
       allow read: if isSignedIn();
       allow create: if isSignedIn() && (isAdmin() || isManager());
       allow update: if isSignedIn() && (isAdmin() || isManager());
     }
 
-    // -------------------------------------------------------------------------
-    // TRANSACTIONS
-    // -------------------------------------------------------------------------
+
     match /transactions/{transactionId} {
       allow read: if isSignedIn() && isAdmin();
       allow create: if isAdmin() || isManager();

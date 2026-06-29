@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
-  LayoutDashboard, 
-  MapPin, 
-  Package, 
-  Layers, 
-  ScanQrCode, 
-  ArrowLeftRight, 
-  BarChart3, 
+  LayoutDashboard,
+  MapPin,
+  Package,
+  Layers,
+  ScanQrCode,
+  ArrowLeftRight,
+  BarChart3,
   Settings as SettingsIcon,
   LogOut,
   Menu,
@@ -16,7 +16,8 @@ import {
   Bell,
   User as UserIcon,
   Archive,
-  TrendingDown
+  TrendingDown,
+  UserPlus
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { auth } from '../../lib/firebase';
@@ -62,6 +63,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     { to: '/transfers', icon: ArrowLeftRight, label: 'Transfers', roles: ['admin', 'manager', 'staff'] },
     { to: '/reports', icon: BarChart3, label: 'Reports', roles: ['admin'] },
     { to: '/settings', icon: SettingsIcon, label: 'Settings', roles: ['admin'] },
+    { to: '/register-user', icon: UserPlus, label: 'Register User', roles: ['admin'] },
   ].filter(item => item.roles.includes(profile?.role || ''));
 
   return (

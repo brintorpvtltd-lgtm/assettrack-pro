@@ -1,10 +1,9 @@
 {
-  "projectId": "gen-lang-client-0928942439",
-  "appId": "1:577239314433:web:e24d95fa4bd3382a755000",
-  "apiKey": "AIzaSyD04xjfGMTXsnC1lllO9X32-ddaz-8utZU",
-  "authDomain": "gen-lang-client-0928942439.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-9123b385-900d-44e5-92b4-d5b7f5a98e29",
-  "storageBucket": "gen-lang-client-0928942439.firebasestorage.app",
-  "messagingSenderId": "577239314433",
+  "projectId": "brintorassetpro-80076",
+  "appId": "1:116350184808:web:e972cb43baf745ad313add",
+  "apiKey": "AIzaSyCYvhXtupjTHWlPzEXLTk8BAJsxteCiuyk",
+  "authDomain": "brintorassetpro-80076.firebaseapp.com",
+  "storageBucket": "brintorassetpro-80076.firebasestorage.app",
+  "messagingSenderId": "116350184808",
   "measurementId": ""
 }
